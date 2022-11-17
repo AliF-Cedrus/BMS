@@ -1,0 +1,11 @@
+azure-storage-blob
+datasets
+docx2txt
+Flask
+Flask-Cors
+frontend
+farm-haystack[faiss]
+farm-haystack[ocr]
+jsonpickle
+pypdf2
+PyMuPDF
