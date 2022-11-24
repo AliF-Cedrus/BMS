@@ -1,10 +1,11 @@
 from flask import Flask, request
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from utilities import *
 import jsonpickle
 
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 CORS(app)
 
 
@@ -15,11 +16,13 @@ print("loaded Readerrrrrrrrrrrrrrrrrr and retriever-------", reader_retriever)
 PIPELINE=ExtractiveQAPipeline(reader=reader_retriever[0], retriever=reader_retriever[1])
 
 @app.route('/')
+
 def hello_world():
     return "flask Dockerized"
 
 
 @app.route('/ask', methods=['POST'])
+@cross_origin()
 def ask():
     if request.method == 'POST':
         q = request.json['question']
@@ -32,7 +35,6 @@ def delete_blob_files():
     container_client = ContainerClient.from_connection_string(connection_string, container_name)
     my_content_settings = ContentSettings(content_type='application/pdf')
     entries = os.listdir('./highlighted-files')
-    print("hellooooooooooooooooo")
     for e in entries:
         print("entryyy",e)
         container_client.delete_blob(blob=e)
@@ -41,4 +43,4 @@ def delete_blob_files():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=True)
+    app.run(debug=True, host='127.0.0.1', port=5000, use_reloader=True)
