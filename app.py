@@ -10,8 +10,8 @@ CORS(app, resources={r"/foo": {"origins": "http://localhost:5000"}})
 PIPELINE = initialize_values()
 
 
-@cross_origin(origin='localhost')
 @app.route('/ask', methods=['POST'])
+@cross_origin(origin='localhost')
 def ask():
     if request.method == 'POST':
         q = request.json['question']
@@ -19,8 +19,8 @@ def ask():
         return jsonpickle.encode(get_final_answers(pred['answers']))
 
 
-@cross_origin(origin='localhost')
 @app.route('/delete/blob-file', methods=['DELETE'])
+@cross_origin(origin='localhost')
 def delete_blob_files():
     print("hellooooooooooooooooo");
     container_client = ContainerClient.from_connection_string(connection_string, container_name)
