@@ -5,13 +5,13 @@ import jsonpickle
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/ask": {"origins": "http://localhost:5000"}})
-
+# CORS(app, resources={r"/ask": {"origins": "http://localhost:5000"}})
+CORS(app)
 PIPELINE = initialize_values()
 
 
 @app.route('/ask', methods=['POST'])
-@cross_origin(origin='localhost')
+# @cross_origin(origin='localhost')
 def ask():
     if request.method == 'POST':
         q = request.json['question']
@@ -20,7 +20,7 @@ def ask():
 
 
 @app.route('/delete/blob-file', methods=['DELETE'])
-@cross_origin(origin='localhost')
+# @cross_origin(origin='localhost')
 def delete_blob_files():
     container_client = ContainerClient.from_connection_string(connection_string, container_name)
     my_content_settings = ContentSettings(content_type='application/pdf')
