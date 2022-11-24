@@ -5,7 +5,7 @@ import jsonpickle
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/foo": {"origins": "http://localhost:5000"}})
+CORS(app, resources={r"/ask": {"origins": "http://localhost:5000"}})
 
 PIPELINE = initialize_values()
 
