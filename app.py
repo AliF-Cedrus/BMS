@@ -22,7 +22,6 @@ def ask():
 @app.route('/delete/blob-file', methods=['DELETE'])
 @cross_origin(origin='localhost')
 def delete_blob_files():
-    print("hellooooooooooooooooo");
     container_client = ContainerClient.from_connection_string(connection_string, container_name)
     my_content_settings = ContentSettings(content_type='application/pdf')
     entries = os.listdir('./highlighted-files')
