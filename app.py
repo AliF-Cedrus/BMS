@@ -16,7 +16,7 @@ PIPELINE = initialize_values()
 def ask():
     if request.method == 'POST':
         q = request.json['question']
-        pred = PIPELINE.run(query=q, params={"Retriever": {"top_k":5}, "Reader": {"top_k": 5}})
+        pred = PIPELINE.run(query=q, params={"Retriever": {"top_k":10}, "Reader": {"top_k": 5}})
         return jsonpickle.encode(get_final_answers(pred['answers']))
 
 
