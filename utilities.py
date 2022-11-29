@@ -71,9 +71,20 @@ def initialize_values():
     print("loading Readerrrrrrrrrrrrrrrrrr-------")
 
 
-    Reader = FARMReader(model_name_or_path='deepset/roberta-base-squad2',
-                        context_window_size=1500,
-                        max_seq_len=500,
+    # Reader = FARMReader(model_name_or_path='deepset/roberta-base-squad2',
+    #                     context_window_size=1500,
+    #                     max_seq_len=512,
+    #                     return_no_answer=True,
+    #                     no_ans_boost=0,
+    #                     use_gpu=False)
+
+
+    # print("loaded Readerrrrrrrrrrrrrrrrrr-------",Reader)
+
+    #
+    Reader = FARMReader(model_name_or_path="ahotrod/albert_xxlargev1_squad2_512",
+                        context_window_size=500,
+                        max_seq_len=512,
                         return_no_answer=True,
                         no_ans_boost=0,
                         use_gpu=False)
@@ -82,15 +93,8 @@ def initialize_values():
     print("loaded Readerrrrrrrrrrrrrrrrrr-------",Reader)
 
 
-    # reader = FARMReader(model_name_or_path="ahotrod/albert_xxlargev1_squad2_512",
-    #                     context_window_size=500,
-    #                     max_seq_len=500,
-    #                     return_no_answer=True,
-    #                     no_ans_boost=0,
-    #                     use_gpu=False)
 
     return [Reader,Retriever]
-
 
 def highlight(list_of_short_answers):
    print("liotttt of short ansdwrrrs",list_of_short_answers)

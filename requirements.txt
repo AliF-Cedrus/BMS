@@ -9,3 +9,4 @@ farm-haystack[ocr]
 jsonpickle
 pypdf2
 PyMuPDF
+protobuf==3.20.0

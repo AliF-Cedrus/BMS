@@ -50,7 +50,7 @@ for e in list_documents:
        new_list = []
        print(len(s))
 
-       if len(s) >= 400:
+       if len(s) >= 450:
            new_list = s.split(', ')
            for l in new_list:
                 new_sentences.append(l + ', ')
@@ -60,7 +60,7 @@ for e in list_documents:
    sentences = new_sentences
 
    while True:
-      sentences = combine_sentences(sentences,300)
+      sentences = combine_sentences(sentences,450)
       new_size = len(sentences)
 
       if new_size == old_size:
@@ -111,4 +111,4 @@ document_store.update_embeddings(
     batch_size=100
 )
 
-document_store.save("bms")
+document_store.save("bm89")
