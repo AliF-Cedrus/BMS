@@ -1,6 +1,7 @@
 from haystack.nodes import PDFToTextConverter, FARMReader
 from haystack.nodes import EmbeddingRetriever
 from haystack.document_stores import FAISSDocumentStore
+from haystack.nodes import DensePassageRetriever
 document_store = FAISSDocumentStore(faiss_index_factory_str="Flat", similarity='cosine')
 doc_dir = './documents/'
 
@@ -90,11 +91,24 @@ document_store.write_documents(dicts)
 
 
 print("loading retriver------")
-retriever = EmbeddingRetriever(
+
+
+retriever=DensePassageRetriever(
     document_store=document_store,
-    embedding_model="sentence-transformers/all-mpnet-base-v2",
-    model_format="sentence_transformers",
+    query_embedding_model='facebook/dpr-question_encoder-single-nq-base',
+    passage_embedding_model='facebook/dpr-ctx_encoder-single-nq-base',
+    embed_title=True,
+    use_gpu=True
+
 )
+# retriever = EmbeddingRetriever(
+#     document_store=document_store,
+#     embedding_model="sentence-transformers/all-mpnet-base-v2",
+#     model_format="sentence_transformers",
+# )
+
+
+
 
 
 # print("loading readerrrrrrrrrrrrrrr------")
@@ -111,4 +125,4 @@ document_store.update_embeddings(
     batch_size=100
 )
 
-document_store.save("bms")
+document_store.save("bm")

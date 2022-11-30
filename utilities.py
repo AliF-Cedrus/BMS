@@ -1,5 +1,5 @@
 from haystack.document_stores import FAISSDocumentStore
-from haystack.nodes import EmbeddingRetriever,FARMReader
+from haystack.nodes import EmbeddingRetriever, FARMReader, DensePassageRetriever
 from haystack.pipelines import ExtractiveQAPipeline
 import PyPDF2
 import fitz
@@ -57,10 +57,19 @@ def initialize_values():
 
     print("loading retriever-------")
 
-    Retriever = EmbeddingRetriever(
+    # Retriever = EmbeddingRetriever(
+    #     document_store=document_store,
+    #     embedding_model="sentence-transformers/all-mpnet-base-v2",
+    #     model_format="sentence_transformers",
+    # )
+
+    Retriever = DensePassageRetriever(
         document_store=document_store,
-        embedding_model="ahotrod/albert_xxlargev1_squad2_512",
-        model_format="sentence_transformers",
+        query_embedding_model='facebook/dpr-question_encoder-single-nq-base',
+        passage_embedding_model='facebook/dpr-ctx_encoder-single-nq-base',
+        embed_title=True,
+        use_gpu=True
+
     )
 
 
@@ -71,13 +80,13 @@ def initialize_values():
     print("loading Readerrrrrrrrrrrrrrrrrr-------")
 
 
-    # Reader = FARMReader(model_name_or_path='ahotrod/albert_xxlargev1_squad2_512',
+    # Reader = FARMReader(model_name_or_path='deepset/roberta-base-squad2',
     #                     context_window_size=1500,
     #                     max_seq_len=512,
     #                     return_no_answer=True,
     #                     no_ans_boost=0,
     #                     use_gpu=False)
-
+    #
 
     # print("loaded Readerrrrrrrrrrrrrrrrrr-------",Reader)
 

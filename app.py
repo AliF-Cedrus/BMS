@@ -12,14 +12,12 @@ CORS(app)
 reader_retriever= initialize_values()
 
 print("loaded Readerrrrrrrrrrrrrrrrrr and retriever-------", reader_retriever)
-
 PIPELINE=ExtractiveQAPipeline(reader=reader_retriever[0], retriever=reader_retriever[1])
 print("Hello")
 @app.route('/')
 
 def hello_world():
     return "flask Dockerized"
-
 
 @app.route('/ask', methods=['POST'])
 @cross_origin()
@@ -40,7 +38,6 @@ def delete_blob_files():
         container_client.delete_blob(blob=e)
         os.remove("./highlighted-files/" + e)
     return
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000, use_reloader=True)
