@@ -48,7 +48,7 @@ for e in list_documents:
 
    for s in sentences:
        new_list = []
-       print(len(s))
+
 
        if len(s) >= 450:
            new_list = s.split(', ')
@@ -111,4 +111,4 @@ document_store.update_embeddings(
     batch_size=100
 )
 
-document_store.save("bm89")
+document_store.save("bms")

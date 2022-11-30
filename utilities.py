@@ -59,7 +59,7 @@ def initialize_values():
 
     Retriever = EmbeddingRetriever(
         document_store=document_store,
-        embedding_model="sentence-transformers/all-mpnet-base-v2",
+        embedding_model="ahotrod/albert_xxlargev1_squad2_512",
         model_format="sentence_transformers",
     )
 
@@ -71,7 +71,7 @@ def initialize_values():
     print("loading Readerrrrrrrrrrrrrrrrrr-------")
 
 
-    # Reader = FARMReader(model_name_or_path='deepset/roberta-base-squad2',
+    # Reader = FARMReader(model_name_or_path='ahotrod/albert_xxlargev1_squad2_512',
     #                     context_window_size=1500,
     #                     max_seq_len=512,
     #                     return_no_answer=True,
@@ -81,7 +81,7 @@ def initialize_values():
 
     # print("loaded Readerrrrrrrrrrrrrrrrrr-------",Reader)
 
-    #
+    # #
     Reader = FARMReader(model_name_or_path="ahotrod/albert_xxlargev1_squad2_512",
                         context_window_size=500,
                         max_seq_len=512,
