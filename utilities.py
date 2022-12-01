@@ -49,14 +49,10 @@ def extract_text_from_pdf(pdf_file: str) -> [str]:
 
         return pdf_text
 
-
 def initialize_values():
     print("loading doc_store-------")
     document_store = FAISSDocumentStore.load("bms")
-
-
     print("loading retriever-------")
-
     # Retriever = EmbeddingRetriever(
     #     document_store=document_store,
     #     embedding_model="sentence-transformers/all-mpnet-base-v2",
@@ -67,6 +63,7 @@ def initialize_values():
         document_store=document_store,
         query_embedding_model='facebook/dpr-question_encoder-single-nq-base',
         passage_embedding_model='facebook/dpr-ctx_encoder-single-nq-base',
+        similarity_function='dot-product',
         embed_title=True,
         use_gpu=True
 
@@ -74,35 +71,26 @@ def initialize_values():
 
 
     print("loaded Retrieverrrrrrrrrrrrr -------",Retriever)
-
-
-
     print("loading Readerrrrrrrrrrrrrrrrrr-------")
 
-
-    # Reader = FARMReader(model_name_or_path='deepset/roberta-base-squad2',
-    #                     context_window_size=1500,
-    #                     max_seq_len=512,
-    #                     return_no_answer=True,
-    #                     no_ans_boost=0,
-    #                     use_gpu=False)
-    #
-
-    # print("loaded Readerrrrrrrrrrrrrrrrrr-------",Reader)
-
-    # #
-    Reader = FARMReader(model_name_or_path="ahotrod/albert_xxlargev1_squad2_512",
-                        context_window_size=500,
+    Reader = FARMReader(model_name_or_path='deepset/roberta-base-squad2',
+                        context_window_size=1500,
                         max_seq_len=512,
                         return_no_answer=True,
                         no_ans_boost=0,
                         use_gpu=False)
 
 
+    # print("loaded Readerrrrrrrrrrrrrrrrrr-------",Reader)
+    # #
+    # Reader = FARMReader(model_name_or_path="ahotrod/albert_xxlargev1_squad2_512",
+    #                     context_window_size=500,
+    #                     max_seq_len=512,
+    #                     return_no_answer=True,
+    #                     no_ans_boost=0,
+    #                     use_gpu=False)
+
     print("loaded Readerrrrrrrrrrrrrrrrrr-------",Reader)
-
-
-
     return [Reader,Retriever]
 
 def highlight(list_of_short_answers):
@@ -201,6 +189,6 @@ def get_final_answers(answers):
 
             if possible_pages and doc_name in url_to_doc_mapping:
                 max_occurence_of_page = max(possible_pages, key=possible_pages.count)
-                answer_info.append({"answer": info.answer, "context": re.sub('\\n',' ',context),"url_highlighted": url_to_doc_mapping[doc_name] + "#page=" + str(max_occurence_of_page), "meta_data": meta_data, "page": max_occurence_of_page})
+                answer_info.append({"answer": info.answer, "context": re.sub('\\n',' ',context) ,"url_highlighted": url_to_doc_mapping[doc_name] + "#page=" + str(max_occurence_of_page), "meta_data": meta_data, "page": max_occurence_of_page})
 
     return answer_info

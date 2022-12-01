@@ -13,18 +13,18 @@ reader_retriever= initialize_values()
 
 print("loaded Readerrrrrrrrrrrrrrrrrr and retriever-------", reader_retriever)
 PIPELINE=ExtractiveQAPipeline(reader=reader_retriever[0], retriever=reader_retriever[1])
-print("Hello")
+
 @app.route('/')
 
 def hello_world():
     return "flask Dockerized"
-
 @app.route('/ask', methods=['POST'])
 @cross_origin()
 def ask():
     if request.method == 'POST':
         q = request.json['question']
         pred = PIPELINE.run(query=q, params={"Retriever": {"top_k":10}, "Reader": {"top_k": 5}},debug=True)
+        print("pred",pred)
         return jsonpickle.encode(get_final_answers(pred['answers']))
 
 
