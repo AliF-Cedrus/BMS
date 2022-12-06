@@ -36,7 +36,6 @@ def word_search(key,extracted_text):
         if key in line:  # searching for the keyword in file
             return page + 1
 
-
 def extract_text_from_pdf(pdf_file: str) -> [str]:
     # Open the PDF file of your choice
     doc_dir = "./documents/"
@@ -49,52 +48,21 @@ def extract_text_from_pdf(pdf_file: str) -> [str]:
 
         return pdf_text
 
+
 def initialize_values():
-    print("loading doc_store-------")
     document_store = FAISSDocumentStore.load("bms")
-    print("loading retriever-------")
-    # Retriever = EmbeddingRetriever(
-    #     document_store=document_store,
-    #     embedding_model="sentence-transformers/all-mpnet-base-v2",
-    #     model_format="sentence_transformers",
-    # )
-
-    Retriever = DensePassageRetriever(
+    retriever = EmbeddingRetriever(
         document_store=document_store,
-        query_embedding_model='facebook/dpr-question_encoder-single-nq-base',
-        passage_embedding_model='facebook/dpr-ctx_encoder-single-nq-base',
-        similarity_function='dot-product',
-        embed_title=True,
-        use_gpu=True
-
+        embedding_model='text-search-ada-query-001',
+        model_format='openai',
+        api_key='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'
     )
 
+    return retriever
 
-    print("loaded Retrieverrrrrrrrrrrrr -------",Retriever)
-    print("loading Readerrrrrrrrrrrrrrrrrr-------")
-
-    Reader = FARMReader(model_name_or_path='deepset/roberta-base-squad2',
-                        context_window_size=1500,
-                        max_seq_len=512,
-                        return_no_answer=True,
-                        no_ans_boost=0,
-                        use_gpu=False)
-
-
-    # print("loaded Readerrrrrrrrrrrrrrrrrr-------",Reader)
-    # #
-    # Reader = FARMReader(model_name_or_path="ahotrod/albert_xxlargev1_squad2_512",
-    #                     context_window_size=500,
-    #                     max_seq_len=512,
-    #                     return_no_answer=True,
-    #                     no_ans_boost=0,
-    #                     use_gpu=False)
-
-    print("loaded Readerrrrrrrrrrrrrrrrrr-------",Reader)
-    return [Reader,Retriever]
 
 def highlight(list_of_short_answers):
-   print("liotttt of short ansdwrrrs",list_of_short_answers)
+   # print("list of short answers",list_of_short_answers)
    list_of_url = {}
    url = "https://bmsblobpoc.blob.core.windows.net/bmspoc/"
 
@@ -131,53 +99,92 @@ def highlight(list_of_short_answers):
 
 
 def list_of_short_answer(answers):
-    list_of_short_answers = {}
+    # print("list of short anwerssss",answers)
     list_of_short_context = {}
     meta_data = []
     for info in answers:
+        # print("---------",info)
         for meta_val in info.meta.values():
             meta_data.append(meta_val)
 
         meta_data = meta_data[:-1]
-        start = info.offsets_in_document[0].start
-        end = info.offsets_in_document[0].end
 
-        if start == 0 and end == 0:
-            continue
+        if meta_data[0] in list_of_short_context.keys():
+                list_of_short_context[meta_data[0]] = list_of_short_context[meta_data[0]] + '/' + str(info.content)
         else:
-            if meta_data[0] in list_of_short_answers.keys():
-                list_of_short_answers[meta_data[0]] = list_of_short_answers[meta_data[0]] + '/' + str(info.answer)
-                list_of_short_context[meta_data[0]] = list_of_short_context[meta_data[0]] + '/' + str(info.context)
-            else:
-                list_of_short_answers[meta_data[0]] = info.answer
-                list_of_short_context[meta_data[0]] = info.context
+                # print("info.contentttt",info.content)
+                list_of_short_context[meta_data[0]] = info.content
+
+    # print("context to highlight",list_of_short_context)
 
     return highlight(list_of_short_context)
 
 
+
+def backward_sentences(sentences,id):
+
+
+    print("given id ",id)
+
+    print("check if it is the sentence ------ : ",sentences[id])
+    current_id = int(id) - 1
+    print("current_id : ", str(current_id))
+
+    updated_sentence = ''
+    while current_id > 0:
+        current_sentence = sentences[str(current_id)]
+        if current_sentence.endswith('. '):
+            break;
+
+        updated_sentence = current_sentence + updated_sentence
+        current_id -= 1
+
+    if (not sentences[id].endswith('. ')):
+        updated_sentence += sentences[id]
+        current_id = int(id) + 1
+        while current_id < len(sentences):
+            current_sentence = sentences[str(current_id)]
+            updated_sentence += current_sentence
+            if current_sentence.endswith('. '):
+                break;
+
+            current_id += 1
+    if(updated_sentence==''):
+        updated_sentence=sentences[id]
+    return updated_sentence
+
+
 def get_final_answers(answers):
+    document_store = FAISSDocumentStore.load("bms")
+    sentences = {}
+    for doc in document_store:
+        # print("doc : ",doc,"number_id :",doc.meta["number_id"])
+        sentences[doc.meta["number_id"]] = doc.content
+
+    print("sentencessssss: ", sentences)
+    # print("answersss here are in get_final answer ",answers)
     url_to_doc_mapping = list_of_short_answer(answers)
     answer_info = []
 
     for info in answers:
         meta_data = []
+        id=0
+        update_context=''
 
         for meta_val in info.meta.values():
+            # print(meta_val)
             meta_data.append(meta_val)
 
         if meta_data:
             meta_data = meta_data[:-1]
             doc_name = meta_data[0]
+            # print("meta_data ",meta_data)
+            id=meta_data[-1]
+
             extracted_text = extract_text_from_pdf(doc_name)
 
-        start = info.offsets_in_document[0].start
-        end = info.offsets_in_document[0].end
-
-        if start == 0 and end == 0:
-            continue
-
-        else:
-            context = info.context
+        if info.content:
+            context = info.content
             list_sentences = extract_sentence_from_context(context, 4)
             possible_pages = []
             for sentence in list_sentences:
@@ -187,8 +194,17 @@ def get_final_answers(answers):
                 else:
                     continue
 
+
+
+            update_context=backward_sentences(sentences,id)
+            print("context--------", context)
+            print("updarteddddd_context---------- ",update_context)
+
+
             if possible_pages and doc_name in url_to_doc_mapping:
                 max_occurence_of_page = max(possible_pages, key=possible_pages.count)
-                answer_info.append({"answer": info.answer, "context": re.sub('\\n',' ',context) ,"url_highlighted": url_to_doc_mapping[doc_name] + "#page=" + str(max_occurence_of_page), "meta_data": meta_data, "page": max_occurence_of_page})
+                # answer_info.append({"context": re.sub('\\n',' ',update_context) ,"url_highlighted": url_to_doc_mapping[doc_name] + "#page=" + str(max_occurence_of_page), "meta_data": meta_data, "page": max_occurence_of_page})
+
+                answer_info.append({"context": update_context ,"url_highlighted": url_to_doc_mapping[doc_name] + "#page=" + str(max_occurence_of_page), "meta_data": meta_data, "page": max_occurence_of_page})
 
     return answer_info

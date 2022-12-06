@@ -2,14 +2,14 @@ from haystack.nodes import PDFToTextConverter, FARMReader
 from haystack.nodes import EmbeddingRetriever
 from haystack.document_stores import FAISSDocumentStore
 from haystack.nodes import DensePassageRetriever
-document_store = FAISSDocumentStore(faiss_index_factory_str="Flat", similarity='dot_product')
+document_store = FAISSDocumentStore(faiss_index_factory_str="Flat", similarity='cosine',embedding_dim=1024)
 doc_dir = './documents/'
 
 def split_word_into_paragraphs(word):
     list_of_sentences = []
     text = word.split('. ')
     for i in range(len(text)):
-        list_of_sentences.append(text[i])
+        list_of_sentences.append(text[i]+". ")
     return list_of_sentences
 
 
@@ -44,30 +44,33 @@ for e in list_documents:
    converter = PDFToTextConverter(remove_numeric_tables=True, valid_languages=["en"])
    doc_pdf = converter.convert(file_path=doc_dir + e[0])[0]
    sentences = split_word_into_paragraphs(doc_pdf.content)
-   # old_size = len(sentences)
-   # new_sentences = []
-   #
-   # # for s in sentences:
-   # #     new_list = []
-   # #
-   # #
-   # #     if len(s) >= 500:
-   # #         new_list = s.split(', ')
-   # #         for l in new_list:
-   # #              new_sentences.append(l + ', ')
-   # #     else:
-   # #         new_sentences.append((s))
+   old_size = len(sentences)
+   new_sentences = []
 
-   # sentences = new_sentences
+   for s in sentences:
+       new_list = []
 
-   # while True:
-   #    sentences = combine_sentences(sentences,500)
-   #    new_size = len(sentences)
-   #
-   #    if new_size == old_size:
-   #        break
-   #    else:
-   #        old_size = len(sentences)
+
+       if len(s) >= 400:
+           new_list = s.split(', ')
+           for l in new_list:
+             print("l--- ",l,l.endswith(". "))
+             if(l.endswith('. ')):
+                new_sentences.append(l)
+             else:
+                 new_sentences.append(l+", ")
+       else:
+           new_sentences.append((s))
+
+   sentences = new_sentences
+   while True:
+      sentences = combine_sentences(sentences,400)
+      new_size = len(sentences)
+
+      if new_size == old_size:
+          break
+      else:
+          old_size = len(sentences)
 
    for S in sentences:
        print(S)
@@ -75,46 +78,39 @@ for e in list_documents:
 
    list_of_paragraphs.append([sentences,e[0],e[1]])
 
+print(list_of_paragraphs)
+
 print("list_of_paraph",list_of_paragraphs)
 
 for e in list_of_paragraphs:
     print('len',len(e[0]))
 
 dicts = []
-
-for e in list_of_paragraphs:
-    for s in e[0]:
-      obj = {"content": s, "meta": {'doc': e[1],'link': e[2]}}
+id=1
+for p in list_of_paragraphs:
+    print("p========",p)
+    for s in p[0]:
+      obj = {"content": s, "meta": {'doc': p[1],'link': p[2]},'number_id':id }
+      id+=1
       dicts.append(obj)
+
+    id+=1
+
+print(dicts)
 
 document_store.write_documents(dicts)
 
-print("loading retriver------")
+print("loading retriever------")
 
-retriever=DensePassageRetriever(
+
+retriever = EmbeddingRetriever(
     document_store=document_store,
-    query_embedding_model='facebook/dpr-question_encoder-single-nq-base',
-    passage_embedding_model='facebook/dpr-ctx_encoder-single-nq-base',
-    similarity_function='dot_product',
-    embed_title=True,
-    use_gpu=True
+    embedding_model='text-search-ada-doc-001',
+    model_format='openai',
+    api_key='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'
+
 )
 
-# retriever = EmbeddingRetriever(
-#     document_store=document_store,
-#     embedding_model="sentence-transformers/all-mpnet-base-v2",
-#     model_format="sentence_transformers",
-# )
-
-# print("loading readerrrrrrrrrrrrrrr------")
-#
-# reader = FARMReader(model_name_or_path='deepset/roberta-base-squad2',
-#                     context_window_size=1500,
-#                     max_seq_len=500,
-#                     return_no_answer=True,
-#                     return_no_answer=True,
-#                     no_ans_boost=0,
-#                     use_gpu=False)
 
 document_store.update_embeddings(
     retriever,
@@ -122,3 +118,5 @@ document_store.update_embeddings(
 )
 
 document_store.save("bms")
+
+
