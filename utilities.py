@@ -165,7 +165,8 @@ def get_final_answers(answers):
     # print("answersss here are in get_final answer ",answers)
     url_to_doc_mapping = list_of_short_answer(answers)
     answer_info = []
-
+    idNb = 1
+    
     for info in answers:
         meta_data = []
         id=0
@@ -199,12 +200,13 @@ def get_final_answers(answers):
             update_context=backward_sentences(sentences,id)
             print("context--------", context)
             print("updarteddddd_context---------- ",update_context)
-
+            
 
             if possible_pages and doc_name in url_to_doc_mapping:
                 max_occurence_of_page = max(possible_pages, key=possible_pages.count)
                 # answer_info.append({"context": re.sub('\\n',' ',update_context) ,"url_highlighted": url_to_doc_mapping[doc_name] + "#page=" + str(max_occurence_of_page), "meta_data": meta_data, "page": max_occurence_of_page})
 
-                answer_info.append({"context": update_context ,"url_highlighted": url_to_doc_mapping[doc_name] + "#page=" + str(max_occurence_of_page), "meta_data": meta_data, "page": max_occurence_of_page})
+                answer_info.append({"id": idNb,"context": update_context ,"url_highlighted": url_to_doc_mapping[doc_name] + "#page=" + str(max_occurence_of_page), "meta_data": meta_data, "page": max_occurence_of_page})
+                idNb++
 
     return answer_info
