@@ -207,6 +207,6 @@ def get_final_answers(answers):
                 # answer_info.append({"context": re.sub('\\n',' ',update_context) ,"url_highlighted": url_to_doc_mapping[doc_name] + "#page=" + str(max_occurence_of_page), "meta_data": meta_data, "page": max_occurence_of_page})
 
                 answer_info.append({"id": idNb,"context": update_context ,"url_highlighted": url_to_doc_mapping[doc_name] + "#page=" + str(max_occurence_of_page), "meta_data": meta_data, "page": max_occurence_of_page})
-                idNb++
+                idNb += 1
 
     return answer_info
